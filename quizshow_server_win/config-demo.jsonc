@@ -1,0 +1,94 @@
+{
+    // main screen
+    "0": {
+        "type": "main",
+        "headers": [  // headers for the table
+            "trustbuzzer",
+            "quickask",
+            "math",
+            "guess the player"
+        ],
+        "table": [ // table for the main screen
+            [ // first column
+                { // first row (1,1)
+                    "titel": "100 points", // titel of the button
+                    "link": "1" // link to the page
+                },
+                { // second row (1,2)
+                    "titel": "200 points",
+                    "link": "2"
+                },
+                { // third row (1,3)
+                    "titel": "300 points",
+                    "link": "3"
+                }
+            ],
+            [ // second column
+                { // first row (2,1)
+                    "titel": "400 points",
+                    "link": "4"
+                },
+                { // second row (2,2)
+                    "titel": "500 points",
+                    "link": "5"
+                },
+                { // third row (2,3)
+                    "titel": "600 points",
+                    "link": "6"
+                }
+            ],[ // third column
+                { // first row (3,1)
+                    "titel": "700 points",
+                    "link": "7"
+                },
+                { // second row (3,2)
+                    "titel": "800 points",
+                    "link": "8"
+                },
+                { // third row (3,3)
+                    "titel": "900 points",
+                    "link": "9"
+                }
+            ],
+            [ // fourth column
+                { // first row (4,1)
+                    "titel": "1000 points",
+                    "link": "10"
+                },
+                { // second row (4,2)
+                    "titel": "1100 points",
+                    "link": "11"
+                },
+                { // third row (4,3)
+                    "titel": "1200 points",
+                    "link": "12"
+                }
+            ]
+        ]
+    },
+    "1": { // id of the page
+        "type": "buzzer", // type of the page
+        "text": "Trust Buzzer", // text of the page
+        "link": "3" // link to the next page
+    },
+    "2": { // id of the page
+        "type": "text", // type of the page
+        "header": "Quick Ask", // header of the page
+        "text": "text", // text of the page
+        "link": "0" // link to the next page
+    },
+    "3": { // id of the page
+        "type": "timer", // type of the page
+        "time": 10, // time in seconds
+        "text": "text", // text of the page
+        "link": "2" // link to the next page
+    },
+    "4": { // id of the page
+        "type": "image", // type of the page
+        "image": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/526870/header.jpg?t=1749717464", // image URL
+        "text": "Sample Image", // optional text below the image
+        "width": 600, // optional width in pixels
+        "height": 400, // optional height in pixels
+        "link": "0" // link to the next page
+    } //...
+}

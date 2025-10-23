@@ -1,0 +1,264 @@
+/* Allgemeine Einstellungen */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: #121212;
+    color: #fff;
+    line-height: 1.8;
+}
+
+a {
+    color: #fff;
+    text-decoration: none;
+}
+
+/* Header */
+header {
+    background: #121212;
+    padding: 20px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 3rem;
+}
+
+header p {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+nav ul li {
+    margin: 0 15px;
+}
+
+nav ul li a {
+    font-size: 1.1rem;
+    color: #fff;
+}
+
+/* Hero Section */
+#hero {
+    background: linear-gradient(135deg, #ff4b5c, #9c4b8b); /* Farblicher Verlauf */
+    padding: 100px 20px;
+    text-align: center;
+}
+
+#hero h2 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+#hero p {
+    font-size: 1.2rem;
+    margin-bottom: 40px;
+}
+
+.download-btn {
+    margin-top: 30px;
+    background-color: #9c4b8b;
+    padding: 10px 30px;
+    font-size: 1.2rem;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.download-btn:hover {
+    background-color: #ff4b5c;
+}
+
+.feature-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 60px;
+    gap: 20px;
+    transition: transform 0.3s ease;
+}
+
+.feature-item .feature-image {
+    flex: 1;
+}
+
+.feature-item .feature-image img {
+    width: 100%;
+    max-width: 400px;
+    border-radius: 8px;
+}
+
+.feature-item .feature-text {
+    flex: 2;
+    text-align: left;
+}
+
+.feature-item h3 {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+}
+
+.feature-item p {
+    font-size: 1.1rem;
+}
+
+.feature-item:hover {
+    transform: scale(1.02);
+}
+
+/* Linke und rechte Position der Bilder */
+.feature-item.left .feature-image {
+    order: 1;
+}
+
+.feature-item.right .feature-image {
+    order: 2;
+}
+
+.feature-text {
+    background: linear-gradient(135deg, #ff4b5c, #9c4b8b);
+    padding: 20px;
+    border-radius: 12px;
+}
+
+.feature-text h3 {
+    font-size: 2rem;
+    color: #fff;
+}
+
+/* Footer */
+footer {
+    background: #121212;
+    color: #bbb;
+    padding: 20px;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+footer p {
+    margin-top: 10px;
+}
+
+/* Allgemeine Einstellungen */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: #121212;
+    color: #fff;
+    line-height: 1.8;
+}
+
+a {
+    color: #fff;
+    text-decoration: none;
+}
+
+/* Features Section */
+.section {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.feature-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 60px;
+    gap: 20px;
+    position: relative;
+}
+
+.feature-item .feature-image {
+    flex: 1;
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    height: 100%;
+}
+
+.feature-item .feature-image img {
+    width: 120%;  /* Bild breiter als der Container, um den rechten Rand abzuschneiden */
+    height: 100%;
+    object-fit: cover;  /* Bild so anpassen, dass es den gesamten Container ausfüllt */
+    object-position: left center;  /* Bild wird links ausgerichtet, um den rechten Rand zu verdecken */
+}
+
+.feature-item .feature-text {
+    flex: 2;
+    text-align: left;
+    font-size: 1.1rem;
+    background: linear-gradient(135deg, #ff4b5c, #9c4b8b);
+    padding: 20px;
+    border-radius: 12px;
+    position: relative;
+    z-index: 2;  /* Sicherstellen, dass die Infobox über den Bildern bleibt */
+    transition: transform 0.3s ease;
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.6);
+}
+
+.feature-item h3 {
+    font-size: 2rem;
+    margin-bottom: 15px;
+}
+
+.feature-item p {
+    font-size: 1.1rem;
+}
+
+.feature-item:hover .feature-text {
+    transform: scale(1.03);  /* Nur die Infobox wird vergrößert, nicht das Bild */
+    z-index: 3;  /* Sicherstellen, dass die Infobox immer oben bleibt */
+}
+
+/* Linke und rechte Position der Bilder */
+.feature-item.left .feature-image {
+    order: 1;
+}
+
+.feature-item.right .feature-image {
+    order: 2;
+}
+
+/* Hintergrundfarbverlauf */
+#features {
+    background: conic-gradient(
+        transparent 0deg 5%,   /* Transparent von 0° bis 5° */
+        red 5deg 25%,           /* Rot von 5° bis 25° */
+        yellow 25deg 45%,       /* Gelb von 25° bis 45° */
+        green 45deg 65%,        /* Grün von 45° bis 65° */
+        blue 65deg 85%,         /* Blau von 65° bis 85° */
+        magenta 85deg 105%,     /* Magenta von 85° bis 105° */
+        transparent 105deg 360° /* Transparent von 105° bis 360° */
+    );
+    padding: 20px;
+    border-radius: 20px;
+    margin-top: 20px;
+}
+
+/* Footer */
+footer {
+    background: #121212;
+    color: #bbb;
+    padding: 20px;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+footer p {
+    margin-top: 10px;
+}

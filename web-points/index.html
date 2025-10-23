@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Team Punkte Tracker</title>
+<style>
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #000000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        color: #fff;
+        padding: 20px;
+        overflow: hidden;
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        align-items: center;
+        width: 100%;
+        max-width: 1400px;
+    }
+
+    .teams {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 40px;
+        width: 100%;
+        max-width: 1200px;
+    }
+
+    .team {
+        background: #1a1a1a;
+        padding: 25px 20px;
+        border-radius: 8px;
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        min-height: 120px;
+        min-width: 200px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .team.hidden {
+        display: none;
+    }
+
+    .team h2 {
+        margin: 0 0 15px 0;
+        font-size: 20px;
+        color: #fff;
+        font-weight: 500;
+    }
+
+    .points {
+        font-size: 42px;
+        font-weight: 600;
+        transition: all 0.5s ease;
+    }
+
+    .points.change {
+        color: #00ff00;
+        transform: scale(1.2);
+    }
+
+    /* Team spezifische Farben */
+    .red { border-top: 3px solid #ff4c4c; }
+    .blue { border-top: 3px solid #4c6aff; }
+    .yellow { border-top: 3px solid #ffd700; }
+    .green { border-top: 3px solid #4caf50; }
+
+    /* Aktiv-Team hervorheben (dynamische Farbe) */
+    .active {
+        box-shadow: 0 0 15px currentColor;
+        border: 2px solid currentColor;
+        background: #222;
+    }
+
+    .status {
+        font-size: 20px;
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    .status span {
+        font-weight: bold;
+        transition: all 0.5s ease;
+    }
+
+    /* Farben für zuletzt gebuzzert */
+    .buzz-red { color: #ff4c4c; }
+    .buzz-blue { color: #4c6aff; }
+    .buzz-yellow { color: #ffd700; }
+    .buzz-green { color: #4caf50; }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+        .teams {
+            gap: 30px;
+        }
+    }
+
+    @media (max-width: 900px) {
+        .teams {
+            gap: 25px;
+        }
+        .team {
+            min-height: 100px;
+            min-width: 180px;
+            padding: 20px 15px;
+        }
+        .points {
+            font-size: 36px;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .teams {
+            gap: 20px;
+        }
+        .team {
+            min-height: 80px;
+            min-width: 160px;
+            padding: 15px;
+        }
+        .points {
+            font-size: 32px;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div class="teams">
+        <div id="teamRed" class="team red">
+            <h2>Team Rot</h2>
+            <div id="redPoints" class="points">0</div>
+        </div>
+        <div id="teamBlue" class="team blue">
+            <h2>Team Blau</h2>
+            <div id="bluePoints" class="points">0</div>
+        </div>
+        <div id="teamYellow" class="team yellow">
+            <h2>Team Gelb</h2>
+            <div id="yellowPoints" class="points">0</div>
+        </div>
+        <div id="teamGreen" class="team green">
+            <h2>Team Grün</h2>
+            <div id="greenPoints" class="points">0</div>
+        </div>
+    </div>
+    <div class="status">
+        Zuletzt gebuzzert: <span id="lastBuzzer">---</span>
+    </div>
+</div>
+
+<script>
+    const redPointsEl = document.getElementById('redPoints');
+    const bluePointsEl = document.getElementById('bluePoints');
+    const yellowPointsEl = document.getElementById('yellowPoints');
+    const greenPointsEl = document.getElementById('greenPoints');
+    const teamRedEl = document.getElementById('teamRed');
+    const teamBlueEl = document.getElementById('teamBlue');
+    const teamYellowEl = document.getElementById('teamYellow');
+    const teamGreenEl = document.getElementById('teamGreen');
+    const lastBuzzerEl = document.getElementById('lastBuzzer');
+
+    let currentRed = 0;
+    let currentBlue = 0;
+    let currentYellow = 0;
+    let currentGreen = 0;
+    let currentBuzzer = null;
+    let currentRedDevices = 0;
+    let currentBlueDevices = 0;
+    let currentYellowDevices = 0;
+    let currentGreenDevices = 0;
+    let manualOverride = false;
+
+    async function fetchPoints() {
+        try {
+            const response = await fetch('http://127.0.0.1:8080/points');
+            const data = await response.json();
+
+            // Punkte aktualisieren
+            if (data.team_red !== currentRed) {
+                currentRed = data.team_red;
+                redPointsEl.textContent = currentRed;
+                animateChange(redPointsEl);
+            }
+            if (data.team_blue !== currentBlue) {
+                currentBlue = data.team_blue;
+                bluePointsEl.textContent = currentBlue;
+                animateChange(bluePointsEl);
+            }
+            if (data.team_yellow !== currentYellow) {
+                currentYellow = data.team_yellow;
+                yellowPointsEl.textContent = currentYellow;
+                animateChange(yellowPointsEl);
+            }
+            if (data.team_green !== currentGreen) {
+                currentGreen = data.team_green;
+                greenPointsEl.textContent = currentGreen;
+                animateChange(greenPointsEl);
+            }
+
+            // Device counts aktualisieren
+            currentRedDevices = data.team_red_devices || 0;
+            currentBlueDevices = data.team_blue_devices || 0;
+            currentYellowDevices = data.team_yellow_devices || 0;
+            currentGreenDevices = data.team_green_devices || 0;
+
+            // Teams basierend auf verbundenen Geräten anzeigen/verstecken (nur wenn kein manueller Override aktiv ist)
+            if (!manualOverride) {
+                updateTeamVisibility();
+            }
+
+            // Aktives Team markieren
+            // Alle Teams zurücksetzen
+            teamRedEl.classList.remove('active');
+            teamBlueEl.classList.remove('active');
+            teamYellowEl.classList.remove('active');
+            teamGreenEl.classList.remove('active');
+            teamRedEl.style.color = '';
+            teamBlueEl.style.color = '';
+            teamYellowEl.style.color = '';
+            teamGreenEl.style.color = '';
+
+            // Aktives Team hervorheben
+            if (data.enabled_team === 'team_red') {
+                teamRedEl.classList.add('active');
+                teamRedEl.style.color = '#ff4c4c';
+            } else if (data.enabled_team === 'team_blue') {
+                teamBlueEl.classList.add('active');
+                teamBlueEl.style.color = '#4c6aff';
+            } else if (data.enabled_team === 'team_yellow') {
+                teamYellowEl.classList.add('active');
+                teamYellowEl.style.color = '#ffd700';
+            } else if (data.enabled_team === 'team_green') {
+                teamGreenEl.classList.add('active');
+                teamGreenEl.style.color = '#4caf50';
+            }
+
+            // Zuletzt gebuzzert anzeigen und stylen
+            if (data.last_buzzer_team !== currentBuzzer) {
+                currentBuzzer = data.last_buzzer_team;
+                if (currentBuzzer === 'team_red') {
+                    lastBuzzerEl.textContent = 'Rot';
+                    lastBuzzerEl.className = 'buzz-red';
+                } else if (currentBuzzer === 'team_blue') {
+                    lastBuzzerEl.textContent = 'Blau';
+                    lastBuzzerEl.className = 'buzz-blue';
+                } else if (currentBuzzer === 'team_yellow') {
+                    lastBuzzerEl.textContent = 'Gelb';
+                    lastBuzzerEl.className = 'buzz-yellow';
+                } else if (currentBuzzer === 'team_green') {
+                    lastBuzzerEl.textContent = 'Grün';
+                    lastBuzzerEl.className = 'buzz-green';
+                } else {
+                    lastBuzzerEl.textContent = '---';
+                    lastBuzzerEl.className = '';
+                }
+            }
+
+        } catch (error) {
+            console.error('Fehler beim Abrufen der Punkte:', error);
+        }
+    }
+
+    function animateChange(element) {
+        element.classList.add('change');
+        setTimeout(() => element.classList.remove('change'), 500);
+    }
+
+    function updateTeamVisibility() {
+        // Teams basierend auf verbundenen Geräten anzeigen/verstecken
+        if (currentRedDevices > 0) {
+            teamRedEl.classList.remove('hidden');
+        } else {
+            teamRedEl.classList.add('hidden');
+        }
+
+        if (currentBlueDevices > 0) {
+            teamBlueEl.classList.remove('hidden');
+        } else {
+            teamBlueEl.classList.add('hidden');
+        }
+
+        if (currentYellowDevices > 0) {
+            teamYellowEl.classList.remove('hidden');
+        } else {
+            teamYellowEl.classList.add('hidden');
+        }
+
+        if (currentGreenDevices > 0) {
+            teamGreenEl.classList.remove('hidden');
+        } else {
+            teamGreenEl.classList.add('hidden');
+        }
+    }
+
+    // Console functions for testing
+    function showTeam(teamColor) {
+        const teamMap = {
+            'red': teamRedEl,
+            'blue': teamBlueEl,
+            'yellow': teamYellowEl,
+            'green': teamGreenEl
+        };
+        
+        const team = teamMap[teamColor.toLowerCase()];
+        if (team) {
+            team.classList.remove('hidden');
+            manualOverride = true;
+            console.log(`Team ${teamColor} is now visible (manual override active)`);
+        } else {
+            console.log('Invalid team color. Use: red, blue, yellow, or green');
+        }
+    }
+
+    function hideTeam(teamColor) {
+        const teamMap = {
+            'red': teamRedEl,
+            'blue': teamBlueEl,
+            'yellow': teamYellowEl,
+            'green': teamGreenEl
+        };
+        
+        const team = teamMap[teamColor.toLowerCase()];
+        if (team) {
+            team.classList.add('hidden');
+            manualOverride = true;
+            console.log(`Team ${teamColor} is now hidden (manual override active)`);
+        } else {
+            console.log('Invalid team color. Use: red, blue, yellow, or green');
+        }
+    }
+
+    function showAllTeams() {
+        teamRedEl.classList.remove('hidden');
+        teamBlueEl.classList.remove('hidden');
+        teamYellowEl.classList.remove('hidden');
+        teamGreenEl.classList.remove('hidden');
+        manualOverride = true;
+        console.log('All teams are now visible (manual override active)');
+    }
+
+    function hideAllTeams() {
+        teamRedEl.classList.add('hidden');
+        teamBlueEl.classList.add('hidden');
+        teamYellowEl.classList.add('hidden');
+        teamGreenEl.classList.add('hidden');
+        manualOverride = true;
+        console.log('All teams are now hidden (manual override active)');
+    }
+
+    function resetToAuto() {
+        manualOverride = false;
+        updateTeamVisibility();
+        console.log('Reset to automatic team visibility based on device count');
+    }
+
+    function getTeamStatus() {
+        console.log('Team Status:');
+        console.log(`Red: ${currentRedDevices} devices, ${currentRed} points`);
+        console.log(`Blue: ${currentBlueDevices} devices, ${currentBlue} points`);
+        console.log(`Yellow: ${currentYellowDevices} devices, ${currentYellow} points`);
+        console.log(`Green: ${currentGreenDevices} devices, ${currentGreen} points`);
+        console.log(`Enabled Team: ${currentBuzzer || 'None'}`);
+    }
+
+    // Make functions available globally
+    window.showTeam = showTeam;
+    window.hideTeam = hideTeam;
+    window.showAllTeams = showAllTeams;
+    window.hideAllTeams = hideAllTeams;
+    window.resetToAuto = resetToAuto;
+    window.getTeamStatus = getTeamStatus;
+
+    // Alle 700ms abrufen
+    setInterval(fetchPoints, 700);
+    fetchPoints();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,763 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Jeopardy-Config Visual Editor</title>
+<style>
+  :root{
+    --bg:#0f1724; --panel:#0b1220; --card:#0f1a2b;
+    --accent:#3ddc97; --muted:#99a0b3; --glass:rgba(255,255,255,0.03);
+    --danger:#ff6b6b;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    color:#e6eef8;
+  }
+  html,body{height:100%; margin:0; background:linear-gradient(180deg,#031026 0%, #071129 100%);}
+  .wrap{display:grid; grid-template-columns: 380px 1fr 420px; gap:18px; padding:22px; height:100vh; box-sizing:border-box;}
+  header{grid-column:1/-1; display:flex; gap:12px; align-items:center; margin-bottom:6px;}
+  h1{font-size:16px; margin:0; color:var(--accent)}
+  .controls {display:flex; gap:8px; margin-left:auto;}
+  button{background:var(--glass); border:1px solid rgba(255,255,255,0.04); color:inherit; padding:8px 10px; border-radius:8px; cursor:pointer}
+  button.primary{background:linear-gradient(90deg,#15424a,#1b6b5f); border:none; color:white;}
+  .panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:12px; padding:14px; box-shadow: 0 6px 18px rgba(3,9,20,0.6); border:1px solid rgba(255,255,255,0.03); overflow:auto}
+  .left, .right{height:calc(100vh - 90px);}
+  .section{margin-bottom:14px}
+  label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px}
+  input[type="text"], input[type="number"], textarea, select {
+    width:100%; box-sizing:border-box; padding:8px 10px; border-radius:8px; background:transparent;
+    border:1px solid rgba(255,255,255,0.03); color:inherit;
+  }
+  .headers-row{display:flex; gap:8px; align-items:center}
+  .headers-row > * {flex:1}
+  .board-preview{background:linear-gradient(180deg,#071428,#0b2433); padding:18px; border-radius:10px; min-height:200px}
+  .board-grid{display:grid; gap:8px;}
+  .col{background:rgba(255,255,255,0.03); padding:8px; border-radius:8px; min-width:80px}
+  .col h4{margin:0 0 8px 0; font-size:13px; color:var(--accent)}
+  .cell{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:10px; border-radius:8px; text-align:center; cursor:pointer; border:1px solid rgba(255,255,255,0.02)}
+  .cell small{display:block; margin-top:6px; color:var(--muted); font-size:12px}
+  .grid-controls{display:flex; gap:6px; margin-top:8px}
+  .pages-list{display:grid; gap:8px}
+  .page-item{padding:10px; background:rgba(255,255,255,0.02); border-radius:8px; display:grid; grid-template-columns: 1fr 120px; gap:8px; align-items:center}
+  .page-meta{font-size:13px}
+  .muted{color:var(--muted); font-size:12px}
+  .toolbar{display:flex; gap:8px; align-items:center}
+  .compact{padding:6px 8px; font-size:13px}
+  .danger{background:linear-gradient(90deg,#8b2635,#b33a4a); border:none}
+  textarea#output{height:180px; font-family:monospace; resize:none; background:linear-gradient(180deg,#071123,#06101a); border:1px solid rgba(255,255,255,0.03)}
+  .small {font-size:12px}
+  .fileInput{display:none}
+  .row-flex{display:flex; gap:8px}
+  .hint{font-size:12px; color:var(--muted)}
+  .error{color:var(--danger); font-size:13px}
+  footer{grid-column:1/-1; margin-top:6px; color:var(--muted); font-size:13px; text-align:center}
+  /* responsiveness */
+  @media (max-width:980px){
+    .wrap{grid-template-columns: 1fr; padding:12px}
+    .left,.right{height:auto}
+    header{flex-wrap:wrap}
+  }
+
+  :root {
+    --bg:#0f1724; --panel:#0b1220; --card:#0f1a2b;
+    --accent:#3ddc97; --muted:#99a0b3; --glass:rgba(255,255,255,0.03);
+    --danger:#ff6b6b;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    color:#e6eef8;
+  }
+  html,body{height:100%; margin:0; background:linear-gradient(180deg,#031026 0%, #071129 100%);}
+
+  /* --- GRID-Layout --- */
+  .wrap {
+    display:grid;
+    grid-template-columns: 1fr 1fr auto; /* 50% / 50% / collapsible panel */
+    gap:18px;
+    padding:22px;
+    height:100vh;
+    box-sizing:border-box;
+    transition: grid-template-columns 0.3s ease;
+  }
+
+  /* Wenn rechte Sidebar eingeklappt ist */
+  .wrap.hide-right {
+    grid-template-columns: 1fr 1fr 0;
+  }
+
+  header{grid-column:1/-1; display:flex; gap:12px; align-items:center; margin-bottom:6px;}
+  h1{font-size:16px; margin:0; color:var(--accent)}
+  .controls {display:flex; gap:8px; margin-left:auto;}
+  button{background:var(--glass); border:1px solid rgba(255,255,255,0.04); color:inherit; padding:8px 10px; border-radius:8px; cursor:pointer}
+  button.primary{background:linear-gradient(90deg,#15424a,#1b6b5f); border:none; color:white;}
+
+  /* --- Panels --- */
+  .panel{
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:12px;
+    padding:14px;
+    box-shadow:0 6px 18px rgba(3,9,20,0.6);
+    border:1px solid rgba(255,255,255,0.03);
+    overflow:auto;
+  }
+
+  /* linke Seite darf horizontal scrollen */
+  .left {
+    height:calc(100vh - 90px);
+    overflow-x:auto;
+    overflow-y:auto;
+    white-space:nowrap; /* damit Inhalte horizontal scrollbar bleiben */
+  }
+
+  /* mittlere bleibt normal */
+  .center {
+    height:calc(100vh - 90px);
+    overflow:auto;
+  }
+
+  /* rechte Sidebar collapsible */
+  .right {
+    height:calc(100vh - 90px);
+    width:420px;
+    transition: all 0.3s ease;
+    overflow:auto;
+  }
+  .wrap.hide-right .right {
+    opacity:0;
+    visibility:hidden;
+    width:0;
+    padding:0;
+    margin:0;
+  }
+
+  .toggleRight {
+    position:fixed;
+    top:22px;
+    right:22px;
+    z-index:999;
+    background:var(--glass);
+    border:1px solid rgba(255,255,255,0.05);
+    padding:6px 10px;
+    border-radius:8px;
+    cursor:pointer;
+    color:var(--accent);
+  }
+
+  footer{grid-column:1/-1; margin-top:6px; color:var(--muted); font-size:13px; text-align:center}
+
+  /* Responsive fallback */
+  @media (max-width:980px){
+    .wrap{grid-template-columns: 1fr; padding:12px}
+    .left,.center,.right{height:auto}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header style="grid-column:1/-1">
+    <div style="display:flex;align-items:center;gap:12px">
+      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='34' height='34'><rect rx='6' width='34' height='34' fill='%233ddc97'/><text x='50%' y='58%' font-size='18' text-anchor='middle' fill='%23010a0b' font-family='Arial'>J</text></svg>" alt="" />
+      <div>
+        <h1>Jeopardy-Config — Visual Editor</h1>
+        <div class="muted small">Visueller Editor • Einfaches Import/Export • Read-only Copy Feld</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <input id="fileInput" class="fileInput" type="file" accept=".json,.jsonc,text/*">
+      <button class="compact" onclick="document.getElementById('fileInput').click()">📁 Datei importieren</button>
+      <button class="compact" onclick="openImportModal()">📥 JSON(C) einfügen</button>
+      <button class="primary compact" onclick="exportConfig()">✅ Export / Kopieren</button>
+      <button class="toggleRight" onclick="toggleRightPanel()">⇔ Panel</button>
+    </div>
+  </header>
+
+  <!-- LEFT: Main board editor -->
+  <div class="panel left">
+    <div class="section">
+      <label>Hauptbildschirm (Main) — Header Spalten</label>
+      <div class="headers-row" id="headersRow"></div>
+      <div class="grid-controls" style="margin-top:8px">
+        <button onclick="addHeader()" class="compact">+ Spalte</button>
+        <button onclick="removeHeader()" class="compact">− Spalte</button>
+        <div style="flex:1"></div>
+        <div class="hint">Headers verwalten — Titel klickbar</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <label>Grid Editor</label>
+      <div class="hint">Bearbeite die Zellen (Titel + Link → Seite ID)</div>
+      <div style="margin-top:10px">
+        <label class="small">Spaltenanzahl automatisch aus Headern</label>
+        <div id="gridEditArea" style="margin-top:8px"></div>
+      </div>
+      <div class="grid-controls" style="margin-top:10px">
+        <button onclick="addRow()" class="compact">+ Reihe</button>
+        <button onclick="removeRow()" class="compact">− Reihe</button>
+        <div class="hint" style="margin-left:auto">Anzahl Reihen ist global (gleiche für alle Spalten)</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <label>Live Vorschau</label>
+      <div class="board-preview">
+        <div id="boardPreview" class="board-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CENTER: Pages editor -->
+  <div class="panel">
+    <div class="section toolbar" style="justify-content:space-between">
+      <div>
+        <label>Seiten (Pages)</label>
+        <div class="muted small">Jede Seite hat eine ID (String) und einen Typ.</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button onclick="addPage()" class="compact">+ Seite</button>
+        <button onclick="duplicateSelectedPage()" class="compact">Doppeln</button>
+        <button onclick="deleteSelectedPage()" class="compact danger">Seite löschen</button>
+      </div>
+    </div>
+
+    <div class="section pages-list" id="pagesList" style="margin-bottom:14px; max-height:55vh; overflow:auto"></div>
+
+    <div class="section">
+      <label>Fehler / Validierung</label>
+      <div id="errors" class="error"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Import/Export -->
+  <div class="panel right">
+    <div class="section">
+      <label>Import / Raw Edit</label>
+      <textarea id="rawInput" placeholder="// JSONC hier einfügen oder Datei importieren" style="height:120px"></textarea>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button onclick="applyRawImport()" class="compact">Importieren</button>
+        <button onclick="prettyLoadSample()" class="compact">Beispiel laden</button>
+        <div style="flex:1"></div>
+        <div class="hint small">Der Import entfernt // und /* */ Kommentare vor dem Parsen.</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <label>Export — JSON (kopierbar)</label>
+      <textarea id="output" readonly></textarea>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button onclick="copyOutput()" class="compact primary">In Zwischenablage kopieren</button>
+        <button onclick="downloadOutput()" class="compact">Als Datei herunterladen</button>
+        <div style="flex:1"></div>
+        <div class="hint small">Read-only Ausgabe — für die App-Konfiguration kopieren.</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <label>Quick-Aktionen</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button onclick="resetAll()" class="compact">Zurücksetzen</button>
+        <button onclick="minifyOutput()" class="compact">Minify</button>
+        <button onclick="formatOutput()" class="compact">Schön formatieren</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>Made with 🤖 — bedienbar, exportierbar, kopierbar. Tipp: IDs sind Strings (z. B. "1", "2", "main").</footer>
+</div>
+
+<script>
+/*
+  Simple visual editor for Jeopardy-like JSON config.
+  - Maintains an internal `config` object
+  - Supports import from JSONC (strip comments) and file input
+  - Edit headers, grid, and pages
+  - Export JSON (pretty) shown in read-only textarea
+*/
+
+let config = {}; // main data model
+
+// --- sample data (the one you gave) ---
+const SAMPLE = {
+  "0": {
+    "type": "main",
+    "headers": [
+      "trustbuzzer",
+      "quickask",
+      "math",
+      "guess the player"
+    ],
+    "table": [
+      [
+        {"titel":"100 points","link":"1"},
+        {"titel":"200 points","link":"2"},
+        {"titel":"300 points","link":"3"}
+      ],
+      [
+        {"titel":"400 points","link":"4"},
+        {"titel":"500 points","link":"5"},
+        {"titel":"600 points","link":"6"}
+      ],
+      [
+        {"titel":"700 points","link":"7"},
+        {"titel":"800 points","link":"8"},
+        {"titel":"900 points","link":"9"}
+      ],
+      [
+        {"titel":"1000 points","link":"10"},
+        {"titel":"1100 points","link":"11"},
+        {"titel":"1200 points","link":"12"}
+      ]
+    ]
+  },
+  "1": {"type":"buzzer","text":"Trust Buzzer","link":"3"},
+  "2": {"type":"text","header":"Quick Ask","text":"text","link":"0"},
+  "3": {"type":"timer","time":10,"text":"text","link":"2"},
+  "4": {"type":"image","image":"https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/526870/header.jpg?t=1749717464","text":"Sample Image","width":600,"height":400,"link":"0"}
+};
+
+// === Utilities ===
+function stripComments(jsonc){
+  // remove /* ... */ and // ... EOL style comments
+  return jsonc
+    .replace(/\/\*[\s\S]*?\*\//g, '')        // block comments
+    .replace(/\/\/.*$/gm, '');               // line comments
+}
+
+function tryParseJSONC(s){
+  try{
+    const clean = stripComments(s).trim();
+    if(clean === '') throw new Error('Leere Eingabe');
+    return JSON.parse(clean);
+  }catch(err){
+    throw err;
+  }
+}
+
+function setConfig(obj){
+  config = JSON.parse(JSON.stringify(obj)); // deep clone
+  renderAll();
+}
+
+// === Rendering ===
+function renderAll(){
+  renderHeaders();
+  renderGridEditor();
+  renderPages();
+  renderPreview();
+  renderOutput();
+  validateConfig();
+}
+
+// Headers area
+function renderHeaders(){
+  const main = config["0"];
+  const container = document.getElementById('headersRow');
+  container.innerHTML = '';
+  const headers = (main && Array.isArray(main.headers)) ? main.headers : [];
+  headers.forEach((h,idx)=>{
+    const div = document.createElement('div');
+    div.style.display='flex'; div.style.alignItems='center'; div.style.gap='6px';
+    const input = document.createElement('input');
+    input.type='text'; input.value = h; input.oninput = e => {
+      config["0"].headers[idx] = e.target.value;
+      renderPreview(); renderOutput();
+    }
+    const btn = document.createElement('button'); btn.className='compact'; btn.textContent='✖'; btn.onclick=()=>{
+      config["0"].headers.splice(idx,1);
+      config["0"].table.splice(idx,1);
+      renderAll();
+    }
+    div.appendChild(input); div.appendChild(btn);
+    container.appendChild(div);
+  });
+}
+
+// Grid editor (cells)
+function renderGridEditor(){
+  const main = config["0"];
+  const container = document.getElementById('gridEditArea');
+  container.innerHTML = '';
+  if(!main){ container.textContent='Kein "main" Bildschirm gefunden.'; return; }
+  const cols = main.table || [];
+  const maxRows = Math.max(0, ...cols.map(c=>c.length));
+  const grid = document.createElement('div');
+  grid.style.display='grid';
+  grid.style.gridTemplateColumns = `repeat(${Math.max(1,cols.length)}, 1fr)`;
+  grid.style.gap='8px';
+
+  cols.forEach((col,ci)=>{
+    const colDiv = document.createElement('div'); colDiv.className='col';
+    const title = document.createElement('h4');
+    title.textContent = (main.headers && main.headers[ci]) ? main.headers[ci] : `Spalte ${ci+1}`;
+    colDiv.appendChild(title);
+
+    for(let r=0;r<maxRows;r++){
+      const cell = col[r] || {"titel":"","link":""};
+      const rowDiv = document.createElement('div'); rowDiv.style.display='grid'; rowDiv.style.gridTemplateColumns='1fr 80px'; rowDiv.style.gap='8px'; rowDiv.style.marginBottom='8px';
+      const t = document.createElement('input'); t.type='text'; t.value = cell.titel || ''; t.oninput = e => {
+        ensureCell(ci,r);
+        config["0"].table[ci][r].titel = e.target.value;
+        renderPreview(); renderOutput();
+      }
+      const l = document.createElement('input'); l.type='text'; l.value = cell.link || ''; l.oninput = e => {
+        ensureCell(ci,r);
+        config["0"].table[ci][r].link = e.target.value;
+        renderPreview(); renderOutput();
+      }
+      rowDiv.appendChild(t); rowDiv.appendChild(l);
+      colDiv.appendChild(rowDiv);
+    }
+    grid.appendChild(colDiv);
+  });
+
+  container.appendChild(grid);
+}
+
+function ensureCell(ci, r){
+  if(!config["0"].table[ci]) config["0"].table[ci] = [];
+  if(!config["0"].table[ci][r]) config["0"].table[ci][r] = {"titel":"","link":""};
+}
+
+// Board preview
+function renderPreview(){
+  const main = config["0"];
+  const container = document.getElementById('boardPreview');
+  container.innerHTML = '';
+  if(!main) { container.textContent='Kein main screen'; return; }
+  const headers = main.headers || [];
+  const table = main.table || [];
+  const cols = table.length;
+  const rows = Math.max(0, ...table.map(c=>c.length));
+  container.style.gridTemplateColumns = `repeat(${Math.max(1,cols)},1fr)`;
+
+  // header strip (small)
+  const headerStrip = document.createElement('div');
+  headerStrip.style.gridColumn = `1 / -1`;
+  headerStrip.style.display = 'grid';
+  headerStrip.style.gridTemplateColumns = `repeat(${Math.max(1,cols)},1fr)`;
+  headerStrip.style.gap = '8px';
+  headers.forEach(h=>{
+    const el = document.createElement('div'); el.style.padding='8px'; el.style.textAlign='center'; el.style.borderRadius='8px'; el.style.background='rgba(255,255,255,0.02)'; el.style.fontWeight='600'; el.textContent = h;
+    headerStrip.appendChild(el);
+  });
+  container.appendChild(headerStrip);
+
+  // cells
+  for(let c=0;c<cols;c++){
+    const col = table[c] || [];
+    const colWrap = document.createElement('div');
+    colWrap.style.display='grid'; colWrap.style.gap='8px';
+
+    for(let r=0;r<rows;r++){
+      const cell = col[r] || {"titel":"","link":""};
+      const el = document.createElement('div'); el.className='cell';
+      const t = document.createElement('div'); t.textContent = cell.titel || '—';
+      const s = document.createElement('small'); s.textContent = cell.link ? `link → ${cell.link}` : 'kein Link';
+      el.appendChild(t); el.appendChild(s);
+      el.onclick = ()=> {
+        // focus on page with that id in pages list if exists
+        const pagesEls = [...document.querySelectorAll('.page-item')];
+        const idx = pagesEls.findIndex(pe => pe.dataset.id === (cell.link || ''));
+        if(idx>=0){ pagesEls[idx].scrollIntoView({behavior:'smooth',block:'center'}); pagesEls[idx].style.outline='2px solid rgba(61,220,151,0.18)'; setTimeout(()=>pagesEls[idx].style.outline='none',900); }
+      }
+      colWrap.appendChild(el);
+    }
+    container.appendChild(colWrap);
+  }
+}
+
+// Pages list editor
+function renderPages(){
+  const pages = Object.keys(config).filter(k=>k!=="0");
+  const list = document.getElementById('pagesList');
+  list.innerHTML = '';
+
+  pages.forEach(id=>{
+    const page = config[id];
+    const item = document.createElement('div'); item.className='page-item'; item.dataset.id = id;
+
+    const meta = document.createElement('div'); meta.className='page-meta';
+    const idRow = document.createElement('div'); idRow.style.display='flex'; idRow.style.gap='8px'; idRow.style.alignItems='center';
+    const idLabel = document.createElement('div'); idLabel.textContent = `ID: ${id}`; idLabel.style.fontWeight='700';
+    const delBtn = document.createElement('button'); delBtn.className='compact'; delBtn.textContent='✖'; delBtn.onclick = ()=>{
+      if(!confirm('Seite wirklich löschen?')) return;
+      delete config[id];
+      renderAll();
+    };
+    idRow.appendChild(idLabel); idRow.appendChild(delBtn);
+    meta.appendChild(idRow);
+
+    // type selector
+    const typeRow = document.createElement('div'); typeRow.style.marginTop='8px';
+    const typeSel = document.createElement('select');
+    ['text','timer','buzzer','image','main','custom'].forEach(t=>{
+      const o = document.createElement('option'); o.value=t; o.textContent=t; if(page.type===t) o.selected=true;
+      typeSel.appendChild(o);
+    });
+    typeSel.onchange = e=>{
+      config[id].type = e.target.value;
+      renderAll();
+    }
+    typeRow.appendChild(typeSel);
+    meta.appendChild(typeRow);
+
+    // dynamic fields
+    const fields = document.createElement('div'); fields.style.marginTop='8px';
+    // render fields based on type
+    const t = page.type || 'text';
+    if(t === 'text' || t === 'buzzer' || t === 'timer' || t === 'image' || t === 'custom'){
+      // common: header (optional), text
+      const f1 = document.createElement('div'); f1.style.display='grid'; f1.style.gap='6px';
+      // header
+      const headerIn = document.createElement('input'); headerIn.type='text'; headerIn.placeholder='header (optional)'; headerIn.value = page.header || '';
+      headerIn.oninput = e => { config[id].header = e.target.value; renderOutput(); }
+      f1.appendChild(headerIn);
+      // text
+      const textIn = document.createElement('input'); textIn.type='text'; textIn.placeholder='text'; textIn.value = page.text || '';
+      textIn.oninput = e => { config[id].text = e.target.value; renderOutput(); }
+      f1.appendChild(textIn);
+      fields.appendChild(f1);
+    }
+    // type-specific
+    if(t === 'timer'){
+      const timeIn = document.createElement('input'); timeIn.type='number'; timeIn.value = page.time || 10; timeIn.oninput = e => { config[id].time = Number(e.target.value); renderOutput(); }
+      const l = document.createElement('div'); l.textContent='Zeit (Sekunden)'; l.className='muted small';
+      fields.appendChild(l); fields.appendChild(timeIn);
+    }
+    if(t === 'image'){
+      const imgIn = document.createElement('input'); imgIn.type='text'; imgIn.placeholder='Image URL'; imgIn.value = page.image || '';
+      imgIn.oninput = e => { config[id].image = e.target.value; renderOutput(); }
+      const w = document.createElement('input'); w.type='number'; w.placeholder='width'; w.value = page.width || '';
+      w.oninput = e => { config[id].width = e.target.value ? Number(e.target.value) : undefined; renderOutput(); }
+      const h = document.createElement('input'); h.type='number'; h.placeholder='height'; h.value = page.height || '';
+      h.oninput = e => { config[id].height = e.target.value ? Number(e.target.value) : undefined; renderOutput(); }
+      fields.appendChild(imgIn); fields.appendChild(w); fields.appendChild(h);
+    }
+
+    // link field (where clicking returns)
+    const linkIn = document.createElement('input'); linkIn.type='text'; linkIn.placeholder='link (next page id)'; linkIn.value = page.link || '';
+    linkIn.oninput = e => { config[id].link = e.target.value; renderOutput(); }
+    const linkLabel = document.createElement('div'); linkLabel.textContent='Link (optional)'; linkLabel.className='muted small';
+    fields.appendChild(linkLabel); fields.appendChild(linkIn);
+
+    // allow renaming ID
+    const renameIn = document.createElement('input'); renameIn.type='text'; renameIn.placeholder='Neues ID (z.B. "13")';
+    renameIn.onkeyup = e => {
+      if(e.key === 'Enter'){
+        const newId = renameIn.value.trim();
+        if(!newId){ alert('ID darf nicht leer sein'); return; }
+        if(config[newId] && newId !== id){ alert('ID existiert bereits'); return; }
+        config[newId] = config[id];
+        delete config[id];
+        renderAll();
+      }
+    }
+    const renameHint = document.createElement('div'); renameHint.className='muted small'; renameHint.textContent='Enter drücken zum umbenennen';
+
+    const rightActions = document.createElement('div');
+    rightActions.style.display='flex'; rightActions.style.flexDirection='column'; rightActions.style.gap='6px';
+    const copyBtn = document.createElement('button'); copyBtn.className='compact'; copyBtn.textContent='Kopieren'; copyBtn.onclick = ()=>{
+      navigator.clipboard?.writeText(JSON.stringify({[id]: config[id]},null,2));
+      copyBtn.textContent='✅';
+      setTimeout(()=>copyBtn.textContent='Kopieren',900);
+    }
+    rightActions.appendChild(copyBtn);
+
+    item.appendChild(meta);
+    const rightCol = document.createElement('div');
+    rightCol.appendChild(fields);
+    rightCol.appendChild(renameIn);
+    rightCol.appendChild(renameHint);
+    rightCol.appendChild(rightActions);
+    item.appendChild(rightCol);
+
+    list.appendChild(item);
+  });
+
+  // if no pages, show hint
+  if(pages.length === 0){
+    list.textContent = 'Keine Seiten (außer main) vorhanden. + Seite klicken, um zu beginnen.';
+  }
+}
+
+// === Actions ===
+function addHeader(){
+  if(!config["0"]){ alert('Kein main screen. Füge main zuerst hinzu.'); return; }
+  config["0"].headers.push('new header');
+  // add empty column with same row count as first column (or 0)
+  const rows = config["0"].table[0] ? config["0"].table[0].length : 0;
+  config["0"].table.push(Array.from({length:rows}, ()=>({titel:'',link:''})));
+  renderAll();
+}
+function removeHeader(){
+  if(!config["0"] || config["0"].headers.length === 0) return;
+  config["0"].headers.pop();
+  config["0"].table.pop();
+  renderAll();
+}
+function addRow(){
+  if(!config["0"]) return;
+  config["0"].table.forEach(col => col.push({titel:'',link:''}));
+  renderAll();
+}
+function removeRow(){
+  if(!config["0"]) return;
+  config["0"].table.forEach(col => col.pop());
+  renderAll();
+}
+
+function addPage(){
+  // find unused numeric-ish id
+  let id = 1;
+  while(config[String(id)]) id++;
+  const sid = String(id);
+  config[sid] = {type:'text', header:'', text:'', link:'0'};
+  renderAll();
+}
+function deleteSelectedPage(){
+  // delete last page (not main) as default
+  const keys = Object.keys(config).filter(k=>k!=="0");
+  if(keys.length===0) return alert('Keine Seite zum löschen.');
+  const toDel = keys[keys.length-1];
+  if(confirm('Seite '+toDel+' löschen?')){
+    delete config[toDel];
+    renderAll();
+  }
+}
+function duplicateSelectedPage(){
+  const keys = Object.keys(config).filter(k=>k!=="0");
+  if(keys.length===0) return alert('Keine Seite zum duplizieren.');
+  const src = config[keys[keys.length-1]];
+  let id = 1; while(config[String(id)]) id++;
+  config[String(id)] = JSON.parse(JSON.stringify(src));
+  renderAll();
+}
+
+// === Import / Export ===
+document.getElementById('fileInput').addEventListener('change', async (e)=>{
+  const f = e.target.files[0];
+  if(!f) return;
+  const txt = await f.text();
+  try{
+    const parsed = tryParseJSONC(txt);
+    setConfig(parsed);
+    document.getElementById('rawInput').value = txt.slice(0, 2000);
+  }catch(err){
+    alert('Fehler beim Parsen: ' + err.message);
+  } finally {
+    e.target.value = '';
+  }
+});
+
+function openImportModal(){
+  const current = document.getElementById('rawInput');
+  current.focus();
+  current.scrollIntoView({behavior:'smooth'});
+}
+
+function applyRawImport(){
+  const txt = document.getElementById('rawInput').value;
+  try{
+    const parsed = tryParseJSONC(txt);
+    setConfig(parsed);
+    alert('Import erfolgreich!');
+  }catch(err){
+    alert('Konnte nicht parsen: ' + err.message);
+  }
+}
+
+function prettyLoadSample(){
+  setConfig(SAMPLE);
+  document.getElementById('rawInput').value = '// Beispiel geladen\n' + JSON.stringify(SAMPLE, null, 2);
+}
+
+// Export output
+function renderOutput(){
+  const out = document.getElementById('output');
+  try{
+    out.value = JSON.stringify(config, null, 2);
+  }catch(e){
+    out.value = '// Fehler beim serialisieren';
+  }
+}
+
+function exportConfig(){
+  renderOutput();
+  copyOutput();
+  alert('Konfiguration wurde in die Zwischenablage kopiert. (Und im Output-Feld angezeigt.)');
+}
+
+function copyOutput(){
+  const out = document.getElementById('output');
+  out.select();
+  try{
+    document.execCommand('copy');
+  }catch(e){
+    // fallback
+    navigator.clipboard?.writeText(out.value);
+  }
+}
+
+function downloadOutput(){
+  const blob = new Blob([document.getElementById('output').value], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'jeopardy-config.json'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function minifyOutput(){
+  try{
+    const min = JSON.stringify(config);
+    document.getElementById('output').value = min;
+  }catch(e){}
+}
+function formatOutput(){
+  renderOutput();
+}
+
+function resetAll(){
+  if(confirm('Zurücksetzen auf leeres Layout?')) {
+    config = {"0":{"type":"main","headers":[],"table":[]}};
+    renderAll();
+  }
+}
+
+// Validation
+function validateConfig(){
+  const errors = [];
+  if(!config["0"]) errors.push('Hauptbildschirm "0" fehlt.');
+  else {
+    if(!Array.isArray(config["0"].headers)) errors.push('"0.headers" muss ein Array sein.');
+    if(!Array.isArray(config["0"].table)) errors.push('"0.table" muss ein Array von Spalten sein.');
+    else {
+      // check table consistency
+      const cols = config["0"].table.length;
+      const rows = Math.max(0, ...config["0"].table.map(c=>Array.isArray(c)?c.length:0));
+      if(config["0"].headers.length !== cols) errors.push('Anzahl headers ≠ Anzahl Spalten in table.');
+      // check links point to existing pages (warn)
+      const allIds = new Set(Object.keys(config));
+      for(let c=0;c<cols;c++){
+        for(let r=0;r< (config["0"].table[c]||[]).length; r++){
+          const l = (config["0"].table[c][r] || {}).link;
+          if(l && !allIds.has(String(l))) errors.push(`Zelle [Spalte ${c+1}, Reihe ${r+1}] führt auf nicht existierende Seite "${l}".`);
+        }
+      }
+    }
+  }
+  // pages sanity
+  Object.keys(config).filter(k=>k!=="0").forEach(k=>{
+    const p = config[k];
+    if(!p.type) errors.push(`Seite ${k} hat keinen type.`);
+  });
+
+  document.getElementById('errors').textContent = errors.join('\n') || 'keine Fehler';
+}
+
+function toggleRightPanel(){
+  document.querySelector('.wrap').classList.toggle('hide-right');
+}
+
+// initialize with sample
+setConfig(SAMPLE);
+
+</script>
+</body>
+</html>

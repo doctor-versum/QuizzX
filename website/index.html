@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizzX - Die interaktive Quizshow App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <div class="logo">
+            <h1>QuizzX</h1>
+            <p>Die interaktive Quizshow-App für deine Events!</p>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#download">Download</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="hero">
+        <div class="hero-content">
+            <h2>Willkommen bei QuizzX!</h2>
+            <p>Erlebe eine einzigartige Quizshow, die mit deinem Team in Echtzeit interagiert!</p>
+            <a href="https://github.com/doctor-versum/quizzx/releases/tag/stable" class="download-btn">Jetzt herunterladen</a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="section">
+        <h2>Funktionen</h2>
+
+        <div class="feature-item left">
+            <div class="feature-image">
+                <img src="images/team_blue.jpg" alt="Server-Client-Architektur"> <!-- Beispielbild, bitte Link anpassen -->
+            </div>
+            <div class="feature-text">
+                <h3>Server auf Windows, Client in Flutter</h3>
+                <p>Der Server von QuizzX läuft einfach auf einem Windows-Computer, sodass du keine komplexe Server-Infrastruktur benötigst. Die Client-App ist plattformübergreifend und mit Flutter entwickelt, was bedeutet, dass sie sowohl auf Android als auch auf vielen anderen Plattformen läuft. So kannst du QuizzX überall und auf nahezu jedem Gerät verwenden. Die einfache Handhabung macht es zu einer schnellen Lösung für jede Veranstaltung.</p>
+            </div>
+        </div>
+
+        <div class="feature-item right">
+            <div class="feature-image">
+                <img src="images/config.png" alt="Modulare Konfiguration"> <!-- Beispielbild, bitte Link anpassen -->
+            </div>
+            <div class="feature-text">
+                <h3>100% modulare Konfiguration</h3>
+                <p>Die Konfiguration von QuizzX erfolgt vollständig über eine JSONC-Datei, was dir maximale Flexibilität gibt. Du kannst neue Fragen, Themen und Spielmodi problemlos hinzufügen, ohne den Code ändern zu müssen. Alles ist modular, sodass du die App nach deinen eigenen Vorstellungen gestalten kannst. Egal, ob du ein Quiz mit Standardfragen oder ein benutzerdefiniertes Event mit eigenen Regeln erstellen möchtest, QuizzX passt sich an.</p>
+            </div>
+        </div>
+
+        <div class="feature-item left">
+            <div class="feature-image">
+                <img src="images/master.png" alt="Administrator Panel"> <!-- Beispielbild, bitte Link anpassen -->
+            </div>
+            <div class="feature-text">
+                <h3>Administrator Clients</h3>
+                <p>QuizzX bietet eine umfassende Administrator-Oberfläche, mit der du das Spiel jederzeit steuern kannst. Verwalte Teams, steuere die Timer und wechsle dynamisch zwischen verschiedenen Spielansichten. Der Administrator-Client ermöglicht es dir auch, das Quiz auf unterschiedliche Weise zu präsentieren, z.B. mit Text-, Timer- oder Buzzer-Slides. Du hast die volle Kontrolle und kannst das Spiel jederzeit anpassen, um das Event spannend zu gestalten.</p>
+            </div>
+        </div>
+
+        <div class="feature-item right">
+            <div class="feature-image">
+                <img src="images/homescreen.png" alt="API und WebSocket"> <!-- Beispielbild, bitte Link anpassen -->
+            </div>
+            <div class="feature-text">
+                <h3>API & WebSocket für Echtzeit-Daten</h3>
+                <p>Mit der QuizzX API kannst du jederzeit auf die wichtigsten Daten zugreifen: die Punkte aller Teams, die Anzahl der verbundenen Geräte und das aktuell aktive Team. Über den WebSocket wirst du in Echtzeit über das Spielgeschehen informiert. Egal, ob du eine Weboberfläche für Zuschauer entwickeln oder die Daten extern nutzen möchtest – die API stellt dir alles zur Verfügung, was du benötigst. Diese Funktion bringt das Spiel auf die nächste Stufe und sorgt für ein noch intensiveres Erlebnis.</p>
+            </div>
+        </div>
+
+        <div class="feature-item left">
+            <div class="feature-image">
+                <img src="images/points.png" alt="Punkteanzeige"> <!-- Beispielbild, bitte Link anpassen -->
+            </div>
+            <div class="feature-text">
+                <h3>Interaktive Punkteanzeige</h3>
+                <p>Die QuizzX-App enthält eine dynamische Punkteanzeige, die die Ergebnisse aller Teams in Echtzeit anzeigt. Du kannst bis zu vier Teams verwalten: Rot, Blau, Grün und Gelb. Die Anzeige zeigt automatisch nur die Teams an, die mindestens ein verbundenes Gerät haben. Über die Web-Konsole kannst du die Sichtbarkeit von Teams manuell steuern, sodass du die Anzeige für verschiedene Teams nach Bedarf ein- oder ausblenden kannst.</p>
+            </div>
+        </div>
+
+        <div class="feature-item right">
+            <div class="feature-image">
+                <img src="images/team_red.jpg" alt="Verschiedene Slide-Typen"> <!-- Beispielbild, bitte Link anpassen -->
+            </div>
+            <div class="feature-text">
+                <h3>Verschiedene Slide-Typen</h3>
+                <p>Die QuizzX-App bietet verschiedene Arten von Sliden, um das Spiel noch spannender zu gestalten. Du kannst Text-Slides, Timer-Slides und Buzzer-Slides verwenden, um die Teilnehmer zu aktivieren und das Spiel voranzutreiben. Für visuelle Highlights kannst du auch Bild-Slides hinzufügen, die entweder aus dem Internet geladen oder lokal auf dem Server gehostet werden. Das gibt dir die Freiheit, das Spiel mit unterschiedlichen Medien und Inhalten zu gestalten und auf die Bedürfnisse deines Events anzupassen.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section id="download" class="section">
+        <h2>Jetzt herunterladen</h2>
+        <p>Hole dir QuizzX jetzt und starte dein eigenes Quizshow-Event!</p>
+        <a href="https://github.com/doctor-versum/quizzx/releases/tag/stable" class="download-btn">Zur GitHub-Seite</a>
+    </section>
+
+    <!-- Footer Section -->
+    <footer>
+        <p>&copy; Tobias Hönisch (doctor-versum@github) 2025</p>
+    </footer>
+</body>
+</html>

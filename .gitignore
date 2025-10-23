@@ -1,0 +1,41 @@
+# Python (Server-Spezifische Dateien)
+quizshow_server_win/venv/
+quizshow_server_win/config.jsonc
+quizshow_server_win/__pycache__/
+quizshow_server_win/add_firewall_rule.bat
+
+# Flutter/Dart
+quizshow_android/.flutter-plugins
+quizshow_android/.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.dart_tool/
+build/
+
+# IDE (JetBrains/Android Studio)
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Android
+android/.gradle/
+android/app/debug/
+android/app/profile/
+android/.idea/
+
+# iOS
+ios/Flutter/Flutter.framework/
+ios/Flutter/Flutter.podspec
+ios/Pods/
+ios/Runner.xcworkspace/
+
+# Log-Dateien
+*.log

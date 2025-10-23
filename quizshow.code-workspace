@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "quizshow_android"
+		},
+		{
+			"path": "quizshow_server_win"
+		},
+		{
+			"path": "web-points"
+		}
+	],
+	"settings": {}
+}
